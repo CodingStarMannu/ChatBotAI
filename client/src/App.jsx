@@ -14,18 +14,34 @@ function App() {
 
   useEffect(() => {
     // Connect to Socket.io
-    socket.current = io("http://localhost:3000");
-
+    socket.current = io("http://localhost:3000", {
+      withCredentials: true,
+      extraHeaders: {
+        "my-custom-header": "abcd",
+      },
+    });
+  
     // Listen for incoming messages
     socket.current.on("message", (data) => {
       updateQNA(AI, data);
     });
-
+  
+    // Log a message when the connection is established
+    socket.current.on("connect", () => {
+      console.log("Connected to Socket.io");
+    });
+  
+    // Log a message when the connection is lost
+    socket.current.on("disconnect", () => {
+      console.log("Disconnected from Socket.io");
+    });
+  
     return () => {
       // Disconnect on component unmount
       socket.current.disconnect();
     };
   }, []);
+  
 
   const updateQNA = (from, value) => {
     setQna((qna) => [...qna, { from, value }]);

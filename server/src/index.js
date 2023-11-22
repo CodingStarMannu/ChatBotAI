@@ -5,24 +5,32 @@ const express = require("express");
 const OpenAI = require('openai');
 
 const http = require("http");
-const socketIo = require("socket.io");
+// const socketIo = require("socket.io");
 const mongoose = require("./config/mongoose");
 const Message = require("./models/message");
 
-const cors = require("cors");
+const cors = require("cors"); 
 
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY 
   });
 
 const app = express();
-app.use(cors());
+app.use(cors()); // Enable CORS for all routes
+
 
 app.use(express.json());
 
 const server = http.createServer(app);
-const io = socketIo(server);
 
+const io = require("socket.io")(server, {
+  cors: {
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST"],
+    allowedHeaders: ["my-custom-header"],
+    credentials: true
+  }
+});
 
 io.on("connection", (socket) => {
   console.log("A user connected");
