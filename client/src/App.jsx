@@ -1,13 +1,31 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./App.css";
 import axios from "axios";
+import io from "socket.io-client";
 
 const YOU = "you";
 const AI = "ai";
+
 function App() {
   const inputRef = useRef();
   const [qna, setQna] = useState([]);
   const [loading, setLoading] = useState(false);
+  const socket = useRef();
+
+  useEffect(() => {
+    // Connect to Socket.io
+    socket.current = io("http://localhost:3000");
+
+    // Listen for incoming messages
+    socket.current.on("message", (data) => {
+      updateQNA(AI, data);
+    });
+
+    return () => {
+      // Disconnect on component unmount
+      socket.current.disconnect();
+    };
+  }, []);
 
   const updateQNA = (from, value) => {
     setQna((qna) => [...qna, { from, value }]);
@@ -24,12 +42,14 @@ function App() {
       })
       .then((response) => {
         updateQNA(AI, response.data.answer);
+
+        // Send the message to the server
+        socket.current.emit("message", response.data.answer);
       })
       .finally(() => {
         setLoading(false);
       });
   };
-
   const renderContent = (qna) => {
     const value = qna.value;
 
