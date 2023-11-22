@@ -4,8 +4,14 @@
   "description": "Chatbot using openAI and socket.io",
   "main": "index.js",
   "scripts": {
-    "dev": "npx nodemon src/index.js"
-  },
+    "dev": "npx nodemon src/index.js",
+    "start": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:server": "npx nodemon src/index.js",
+    "dev:client": "vite",
+    "build": "vite build",
+    "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview"
+  },  
   "author": "Manoj",
   "license": "ISC",
   "dependencies": {
